@@ -5,15 +5,21 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Repositories\ProductRepositoryInterface;
 
 class ProductController extends Controller
 {
+    private $repository;
+
+    public function __construct(ProductRepositoryInterface $repository){
+        $this->repository = $repository;
+    }
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $products = Product::all();
+        $products = $this->repository->all();
         return Inertia::render('ProductsIndex',['products'=>$products]);
     }
 
@@ -30,7 +36,7 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        Product::create($request->all());
+        $this->repository->create($request->all());
         return redirect()->route('products.index');
     }
 
@@ -55,7 +61,7 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product)
     {
-        $product->update($request->all());
+        $this->repository->update($request->all(), $product->id);
         return redirect()->route('products.index');
     }
 
@@ -64,7 +70,7 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
-        $product->delete();
+        $this->repository->delete($product->id);
         return redirect()->route('products.index');
     }
 }
